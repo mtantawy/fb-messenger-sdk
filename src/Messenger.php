@@ -17,6 +17,8 @@ class Messenger
 {
     use ResponseHandler;
 
+    const SETTINGS_URL_NAMESPACE = 'messenger_profile';
+
     /**
      * @var Client
      */
@@ -53,7 +55,8 @@ class Messenger
      * @param string $recipient
      * @param string $typingIndicator
      */
-    public function setTypingStatus($recipient, $typingIndicator) {
+    public function setTypingStatus($recipient, $typingIndicator)
+    {
         $options = RequestOptionsFactory::createForTyping($recipient, $typingIndicator);
         $this->client->send('POST', '/me/messages', null, [], [], $options);
     }
@@ -102,10 +105,19 @@ class Messenger
     /**
      * @param $text
      */
-    public function setGreetingText($text)
+    public function setGreetingText($defaultText, $localizedTexts = [])
     {
-        $greeting = new GreetingText($text);
-        $setting = $this->buildSetting(ThreadSetting::TYPE_GREETING, null, $greeting);
+        $greetingTexts = array_merge(
+            [
+                [
+                    'locale' => 'default',
+                    'text' => $defaultText
+                ]
+            ],
+            $localizedTexts
+        );
+        $greeting = new GreetingText($greetingTexts);
+        $setting = $this->buildSetting(ThreadSetting::TYPE_GREETING, $greeting);
 
         $this->postThreadSettings($setting);
     }
@@ -117,9 +129,8 @@ class Messenger
     {
         $startedButton = new StartedButton($payload);
         $setting = $this->buildSetting(
-            ThreadSetting::TYPE_CALL_TO_ACTIONS,
-            ThreadSetting::NEW_THREAD,
-            [$startedButton]
+            'get_started',
+            $startedButton
         );
 
         $this->postThreadSettings($setting);
@@ -190,7 +201,7 @@ class Messenger
      */
     private function postThreadSettings(array $setting)
     {
-        $this->client->post('/me/thread_settings', $setting);
+        $this->client->post('/me/' . self::SETTINGS_URL_NAMESPACE, $setting);
     }
 
     /**
@@ -198,25 +209,18 @@ class Messenger
      */
     private function deleteThreadSettings(array $setting)
     {
-        $this->client->send('DELETE', '/me/thread_settings', $setting);
+        $this->client->send('DELETE', '/me/' . self::SETTINGS_URL_NAMESPACE, $setting);
     }
 
     /**
      * @param string $type
-     * @param null|string $threadState
      * @param mixed $value
      *
      * @return array
      */
-    private function buildSetting($type, $threadState = null, $value = null)
+    private function buildSetting($type, $value = null)
     {
-        $setting = [
-            'setting_type' => $type,
-        ];
-
-        if (!empty($threadState)) {
-            $setting['thread_state'] = $threadState;
-        }
+        $setting = [];
 
         if (!empty($value)) {
             $setting[$type] = $value;

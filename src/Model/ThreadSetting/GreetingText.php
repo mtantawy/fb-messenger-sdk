@@ -7,20 +7,22 @@ use Tgallice\FBMessenger\Model\ThreadSetting;
 class GreetingText implements ThreadSetting, \JsonSerializable
 {
     /**
-     * @var string
+     * @var array
      */
-    private $text;
+    private $greetingTexts;
 
     /**
-     * @param string $text
+     * @param array $greetingTexts
      */
-    public function __construct($text)
+    public function __construct($greetingTexts)
     {
-        if (mb_strlen($text) > 160) {
-            throw new \InvalidArgumentException('The greeting text should not exceed 160 characters.');
+        foreach ($greetingTexts as $localizedText) {
+            if (mb_strlen($localizedText['text']) > 160) {
+                throw new \InvalidArgumentException('The greeting text should not exceed 160 characters.');
+            }
         }
 
-        $this->text = $text;
+        $this->greetingTexts = $greetingTexts;
     }
 
     /**
@@ -36,8 +38,6 @@ class GreetingText implements ThreadSetting, \JsonSerializable
      */
     public function jsonSerialize()
     {
-        return [
-            'text' => $this->text,
-        ];
+        return json_encode($this->greetingTexts);
     }
 }
