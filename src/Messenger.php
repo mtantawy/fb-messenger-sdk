@@ -151,13 +151,12 @@ class Messenger
      */
     public function setPersistentMenu(array $menuButtons)
     {
-        if (count($menuButtons) > 5) {
-            throw new \InvalidArgumentException('You should not set more than 5 menu items.');
+        if (count($menuButtons) > 3) {
+            throw new \InvalidArgumentException('You should not set more than 3 menu items.');
         }
 
         $setting = $this->buildSetting(
-            ThreadSetting::TYPE_CALL_TO_ACTIONS,
-            ThreadSetting::EXISTING_THREAD,
+            'persistent_menu',
             $menuButtons
         );
 
