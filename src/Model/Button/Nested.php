@@ -30,7 +30,7 @@ class Nested extends Button
         $this->title = $title;
 
         foreach ($payloads as $payload) {
-            Button::validatePayload($payload);
+            Button::validatePayload($payload->getPayload());
         }
 
         $this->payload = $payloads;
@@ -59,7 +59,7 @@ class Nested extends Button
     {
         $json = parent::jsonSerialize();
         $json['title'] = $this->title;
-        $json['payload'] = $this->payload;
+        $json['call_to_actions'] = $this->payload;
 
         return $json;
     }
