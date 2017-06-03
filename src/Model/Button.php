@@ -5,6 +5,7 @@ namespace Tgallice\FBMessenger\Model;
 abstract class Button implements \JsonSerializable
 {
     const TYPE_POSTBACK = 'postback';
+    const TYPE_NESTED = 'nested';
     const TYPE_PHONE_NUMBER = 'phone_number';
     const TYPE_WEB_URL = 'web_url';
     const TYPE_SHARE = 'element_share';
